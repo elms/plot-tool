@@ -18,7 +18,7 @@ static int applyAffine(xpdata_t* res,
     tmp[ii] = pnt[ii] + tAffine[ii];
   }
 
-  for (size_t ii=0; ii < TargetDim; ii++) {
+  for (size_t ii=0; ii < nDim; ii++) {
     res[ii] = 0;
     for (size_t jj=0; jj < nDim; jj++) {
       // ii+1 to step over the offset in the affine transform
@@ -30,15 +30,27 @@ static int applyAffine(xpdata_t* res,
   return 0;
 }
 
-static int projectToX(XPoint* pnts,
+static int projectToX(xpdata_t* pnts,
                       xpdata_t* vals, const size_t nDim, const size_t nCnt,
                       xpdata_t* tAffine) {
+
+  for (size_t ii=0; ii<nCnt; ii++) {
+    applyAffine(pnts + ii*nDim, vals + ii*nDim, nDim, tAffine);
+  }
+
+  return 0;
+}
+
+static int perspective(XPoint* pnts,
+                       xpdata_t* vals, const size_t nDim, const size_t nCnt) {
   xpdata_t* tmp = malloc(sizeof(xpdata_t) * TargetDim);
 
   for (size_t ii=0; ii<nCnt; ii++) {
-    applyAffine(tmp, vals + ii*nDim, nDim, tAffine);
-    pnts[ii].x = tmp[0];
-    pnts[ii].y = tmp[1];
+    tmp[0] = 10*(vals[ii*nDim + 0])/(vals[ii*nDim + 2]+2);
+    tmp[1] = 10*(vals[ii*nDim + 1])/(vals[ii*nDim + 2]+2);
+
+    pnts[ii].x = round(tmp[0]);
+    pnts[ii].y = round(tmp[1]);
 
     printf("pnt: %f %f %d %d\n", tmp[0], tmp[1], pnts[ii].x, pnts[ii].y);
   }
@@ -47,9 +59,14 @@ static int projectToX(XPoint* pnts,
   return 0;
 }
 
+
 int main(int argc, char** argv) {
 
   Display* disp = XOpenDisplay(NULL);
+  if (NULL == disp) {
+
+    exit(0);
+  }
   int screen = DefaultScreen(disp);
 
   int width=800;
@@ -61,6 +78,7 @@ int main(int argc, char** argv) {
   Window win = XCreateSimpleWindow(disp, RootWindow(disp, screen),
 				   0, 0, width, height, 0, white, black);
 
+
   XSelectInput(disp, win, ExposureMask | KeyPressMask | ButtonPressMask);
   XMapWindow(disp, win);
 
@@ -71,56 +89,14 @@ int main(int argc, char** argv) {
 
   XEvent ev;
   int cont = 1;
-  size_t npnts = 24;
-  size_t ndim = 3;
-
-  xpdata_t cube[24 * 3] =
-      { +1, +1, +1,
-        +1, +1, -1,
-        +1, +1, +1,
-        +1, -1, +1,
-        +1, +1, +1,
-        -1, +1, +1,
-
-        -1, +1, -1,
-        -1, +1, +1,
-        -1, +1, -1,
-        -1, -1, -1,
-        -1, +1, -1,
-        +1, +1, -1,
-
-        +1, -1, -1,
-        +1, -1, +1,
-        +1, -1, -1,
-        +1, +1, -1,
-        +1, -1, -1,
-        -1, -1, -1,
-
-        -1, -1, +1,
-        -1, -1, -1,
-        -1, -1, +1,
-        -1, +1, +1,
-        -1, -1, +1,
-        +1, -1, +1
-
-        };
-  XPoint* pnts = calloc(npnts, sizeof(pnts));
   static size_t bcnt = 0;
 
-  // offset vector + projecting to TargetDim
-  xpdata_t* proj1 = calloc(ndim * (1 + TargetDim), sizeof(xpdata_t));
-
-  proj1[0] = 20;
-  proj1[1] = 20;
-  proj1[2] = 20;
-  proj1[3] = 10 * cos(0.1);
-  proj1[4] = 10 * sin(0.1);
-  proj1[5] = 3;
-  proj1[6] = 10 * -sin(0.1);
-  proj1[7] = 10 * cos(0.1);
-  proj1[8] = 3;
-
-  projectToX(pnts, cube, ndim, npnts, proj1);
+  xpdata_t x = 1;
+  xpdata_t y = 1;
+  int rind = 0;
+  xpdata_t diffs[3][2] = { {0, 1}, {0.5, 0}, {1, 1} };
+  xpdata_t sc = 0.5;
+  int ssc = 500;
 
   while (cont) {
     XNextEvent(disp, &ev);
@@ -130,29 +106,31 @@ int main(int argc, char** argv) {
           printf("expose\n");
           unsigned long color = 0xff;
           XSetForeground(disp, gc, color);
-          XDrawLine(disp, win, gc, 0, 0, 100, 200);
-
-          XDrawLines(disp, win, gc, pnts, npnts, CoordModeOrigin);
 
           break;
         }
       case ButtonPress:
+      case KeyPress:
         bcnt++;
-        proj1[3] = 10 * cos(0.1*bcnt);
-        proj1[4] = 10 * sin(0.1*bcnt);
-        proj1[5] = 3;
-        proj1[6] = 10 * -sin(0.1*bcnt);
-        proj1[7] = 10 * cos(0.1*bcnt);
-        proj1[8] = 3;
-        projectToX(pnts, cube, ndim, npnts, proj1);
-        XDrawLines(disp, win, gc, pnts, npnts, CoordModeOrigin);
+
+        for (int ii=0; ii<1000; ii++) {
+          rind = rand()%3;
+
+          x = sc * (x + diffs[rind][0]);
+          y = sc * (y + diffs[rind][1]);
+
+          //printf("xy: %f %f\n", x, y);
+
+          XDrawPoint(disp, win, gc, round(ssc*x), round(ssc*y));
+        }
 
         printf("button: %zu\n", bcnt);
-        break;
-      case KeyPress:
-        printf("keypress: %#x\n", ((XKeyEvent*)&ev)->keycode);
-        if (0x14 == ((XKeyEvent*)&ev)->keycode) {
-          cont = 0;
+
+        if (ev.type == KeyPress) {
+          printf("keypress: %#x\n", ((XKeyEvent*)&ev)->keycode);
+          if (0x14 == ((XKeyEvent*)&ev)->keycode) {
+            cont = 0;
+          }
         }
         break;
     }
