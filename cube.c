@@ -6,63 +6,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
-#define TargetDim 2
-
-
-typedef float xpdata_t;
-
-static int applyAffine(xpdata_t* res,
-                       xpdata_t* pnt, const size_t nDim, xpdata_t* tAffine) {
-  xpdata_t* tmp = malloc(sizeof(xpdata_t) * nDim);
-
-  for (size_t ii=0; ii < nDim; ii++) {
-    tmp[ii] = pnt[ii] + tAffine[ii];
-  }
-
-  for (size_t ii=0; ii < nDim; ii++) {
-    res[ii] = 0;
-    for (size_t jj=0; jj < nDim; jj++) {
-      // ii+1 to step over the offset in the affine transform
-      res[ii] += tmp[jj] * tAffine[jj + (ii+1) * nDim];
-    }
-  }
-
-  free(tmp);
-  return 0;
-}
-
-static int projectToX(xpdata_t* pnts,
-                      xpdata_t* vals, const size_t nDim, const size_t nCnt,
-                      xpdata_t* tAffine) {
-
-  for (size_t ii=0; ii<nCnt; ii++) {
-    applyAffine(pnts + ii*nDim, vals + ii*nDim, nDim, tAffine);
-    printf("%f %f %f\t %f\n", pnts[ii*nDim + 0], pnts[ii*nDim + 1], pnts[ii*nDim + 2],
-           sqrt(pnts[ii*nDim + 0]*pnts[ii*nDim + 0] + pnts[ii*nDim + 1]*pnts[ii*nDim + 1] +  pnts[ii*nDim + 2]*pnts[ii*nDim + 2]));
-  }
-
-  return 0;
-}
-
-static int perspective(XPoint* pnts,
-                       xpdata_t* vals, const size_t nDim, const size_t nCnt) {
-  xpdata_t* tmp = malloc(sizeof(xpdata_t) * TargetDim);
-  xpdata_t offset = 30;
-
-  for (size_t ii=0; ii<nCnt; ii++) {
-    tmp[0] = 100*offset*(vals[ii*nDim + 0])/(vals[ii*nDim + 2] + offset);
-    tmp[1] = 100*offset*(vals[ii*nDim + 1])/(vals[ii*nDim + 2] + offset);
-
-    pnts[ii].x = round(tmp[0]);
-    pnts[ii].y = round(tmp[1]);
-
-    printf("pnt: %f %f %d %d\n", tmp[0], tmp[1], pnts[ii].x, pnts[ii].y);
-  }
-
-  free(tmp);
-  return 0;
-}
-
+#include "projective.h"
 
 int main(int argc, char** argv) {
 
@@ -145,11 +89,11 @@ int main(int argc, char** argv) {
   proj1[10] = 0;
   proj1[11] = 1;
 
-  perspective(xpnts, cube, ndim, npnts);
-  for (size_t ii=0; ii<npnts; ii++) {
-    xpnts[ii].x += 200;
-    xpnts[ii].y += 200;
-  }
+  xpdata_t offset = 30;
+  size_t xo = 200;
+  size_t yo = 200;
+
+  perspective(xpnts, cube, ndim, npnts, offset, xo, yo);
 
   while (cont) {
     XNextEvent(disp, &ev);
@@ -189,11 +133,7 @@ int main(int argc, char** argv) {
 #endif
         projectToX(pnts, cube, ndim, npnts, proj1);
 
-        perspective(xpnts, pnts, ndim, npnts);
-        for (size_t ii=0; ii<npnts; ii++) {
-          xpnts[ii].x = 200 + xpnts[ii].x;
-          xpnts[ii].y = 200 + xpnts[ii].y;
-        }
+        perspective(xpnts, pnts, ndim, npnts, offset, xo, yo);
 
         bcnt++;
 
