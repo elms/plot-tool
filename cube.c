@@ -36,6 +36,8 @@ static int projectToX(xpdata_t* pnts,
 
   for (size_t ii=0; ii<nCnt; ii++) {
     applyAffine(pnts + ii*nDim, vals + ii*nDim, nDim, tAffine);
+    printf("%f %f %f\t %f\n", pnts[ii*nDim + 0], pnts[ii*nDim + 1], pnts[ii*nDim + 2],
+           sqrt(pnts[ii*nDim + 0]*pnts[ii*nDim + 0] + pnts[ii*nDim + 1]*pnts[ii*nDim + 1] +  pnts[ii*nDim + 2]*pnts[ii*nDim + 2]));
   }
 
   return 0;
@@ -44,10 +46,11 @@ static int projectToX(xpdata_t* pnts,
 static int perspective(XPoint* pnts,
                        xpdata_t* vals, const size_t nDim, const size_t nCnt) {
   xpdata_t* tmp = malloc(sizeof(xpdata_t) * TargetDim);
+  xpdata_t offset = 30;
 
   for (size_t ii=0; ii<nCnt; ii++) {
-    tmp[0] = 10*(vals[ii*nDim + 0])/(vals[ii*nDim + 2]+2);
-    tmp[1] = 10*(vals[ii*nDim + 1])/(vals[ii*nDim + 2]+2);
+    tmp[0] = 10*offset*(vals[ii*nDim + 0])/(vals[ii*nDim + 2] + offset);
+    tmp[1] = 10*offset*(vals[ii*nDim + 1])/(vals[ii*nDim + 2] + offset);
 
     pnts[ii].x = round(tmp[0]);
     pnts[ii].y = round(tmp[1]);
@@ -162,6 +165,7 @@ int main(int argc, char** argv) {
         }
       case ButtonPress:
       case KeyPress:
+#if 1
         proj1[3]  = cos(0.05*bcnt) * cos(0.1*bcnt);
         proj1[4]  = cos(0.05*bcnt) * sin(0.1*bcnt);
         proj1[5]  = sin(0.05*bcnt);
@@ -171,6 +175,17 @@ int main(int argc, char** argv) {
         proj1[9]  = -sin(0.05*bcnt) * cos(0.1*bcnt);
         proj1[10] = -sin(0.05*bcnt) * sin(0.1*bcnt);
         proj1[11] = cos(0.05*bcnt);
+#else
+        proj1[3]  = cos(0.1*bcnt);
+        proj1[4]  = 0;
+        proj1[5]  = sin(0.1*bcnt);
+        proj1[6]  = 0;
+        proj1[7]  = 1;
+        proj1[8]  = 0;
+        proj1[9]  = -sin(0.1*bcnt);
+        proj1[10] = 0;
+        proj1[11] = cos(0.1*bcnt);
+#endif
         projectToX(pnts, cube, ndim, npnts, proj1);
 
         perspective(xpnts, pnts, ndim, npnts);
