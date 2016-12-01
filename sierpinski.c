@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 
 #define TargetDim 2
 
@@ -69,8 +70,8 @@ int main(int argc, char** argv) {
   }
   int screen = DefaultScreen(disp);
 
-  int width=800;
-  int height = 400;
+  int width=600;
+  int height = 600;
 
   unsigned long black = BlackPixel(disp, screen);
   unsigned long white = WhitePixel(disp, screen);
@@ -127,8 +128,8 @@ int main(int argc, char** argv) {
         printf("button: %zu\n", bcnt);
 
         if (ev.type == KeyPress) {
-          printf("keypress: %#x\n", ev.xkey.keycode);
-          if (0x14 == ev.xkey.keycode) {
+          KeySym ksym = XLookupKeysym(&ev.xkey, 0);
+          if (XK_q == ksym || XK_Q == ksym) {
             cont = 0;
           }
         }

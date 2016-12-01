@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 
 #define TargetDim 2
 
@@ -49,8 +50,8 @@ static int perspective(XPoint* pnts,
   xpdata_t offset = 30;
 
   for (size_t ii=0; ii<nCnt; ii++) {
-    tmp[0] = 10*offset*(vals[ii*nDim + 0])/(vals[ii*nDim + 2] + offset);
-    tmp[1] = 10*offset*(vals[ii*nDim + 1])/(vals[ii*nDim + 2] + offset);
+    tmp[0] = 100*offset*(vals[ii*nDim + 0])/(vals[ii*nDim + 2] + offset);
+    tmp[1] = 100*offset*(vals[ii*nDim + 1])/(vals[ii*nDim + 2] + offset);
 
     pnts[ii].x = round(tmp[0]);
     pnts[ii].y = round(tmp[1]);
@@ -202,8 +203,8 @@ int main(int argc, char** argv) {
         printf("button: %zu\n", bcnt);
 
         if (ev.type = KeyPress) {
-          printf("keypress: %#x\n", ev.xkey.keycode);
-          if (0x14 == ev.xkey.keycode) {
+          KeySym ksym = XLookupKeysym(&ev.xkey, 0);
+          if (XK_q == ksym || XK_Q == ksym) {
             cont = 0;
           }
         }
