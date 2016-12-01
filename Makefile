@@ -1,4 +1,4 @@
-TARGETS:=cube sierpinski xplot
+TARGETS:=cube sierpinski xplot cantor
 
 CFLAGS+=-std=gnu99 -O0 -g
 LDFLAGS+=-lX11 -lm
@@ -14,4 +14,7 @@ sierpinski: sierpinski.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 xplot: xplot.o projective.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+cantor: cantor.o projective.o
 	$(CC) -o $@ $^ $(LDFLAGS)
