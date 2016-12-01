@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include <X11/Xlib.h>
+#include <X11/keysym.h>
 
 #define TargetDim 2
 
@@ -50,6 +51,11 @@ static int projectToX(XPoint* pnts,
 int main(int argc, char** argv) {
 
   Display* disp = XOpenDisplay(NULL);
+  if (NULL == disp) {
+    fprintf(stderr, "unable to open display\n");
+    exit(1);
+  }
+
   int screen = DefaultScreen(disp);
 
   int width=800;
@@ -122,6 +128,24 @@ int main(int argc, char** argv) {
 
   projectToX(pnts, cube, ndim, npnts, proj1);
 
+  if (1) {
+    int min_kc;
+    int max_kc;
+    XDisplayKeycodes(disp, &min_kc, &max_kc);
+
+    int cnt_kc = max_kc - min_kc + 1;
+    int per = 0;
+    KeySym* ks = XGetKeyboardMapping(disp, min_kc, cnt_kc, &per);
+
+    for (int ii=0; ii < cnt_kc; ii++) {
+        printf("%d\n", ii);
+      for (int jj=0; jj< per; jj++) {
+        printf("\t%d\t%#x\n", jj, ks[ii*per + jj]);
+      }
+    }
+
+    XFree(ks);
+  }
   while (cont) {
     XNextEvent(disp, &ev);
     switch (ev.type) {
@@ -150,9 +174,23 @@ int main(int argc, char** argv) {
         printf("button: %zu\n", bcnt);
         break;
       case KeyPress:
-        printf("keypress: %#x\n", ((XKeyEvent*)&ev)->keycode);
-        if (0x14 == ((XKeyEvent*)&ev)->keycode) {
-          cont = 0;
+        {
+          KeySym ksym = XLookupKeysym(&ev.xkey, 0);
+          printf("keypress: %#x\t%#x\t%#x\n", ev.xkey.keycode, ev.xkey.state, ksym);
+          {
+            char string[25];
+            int len;
+            KeySym keysym;
+            len = XLookupString(&ev.xkey, string, 25, &keysym, NULL);
+            printf("%d %#x ", len, keysym, string);
+            for (int ii=0; ii<len; ii++) {
+              printf("%#x, ", string[ii]);
+            }
+            printf("\n");
+          }
+          if (XK_q == ksym || XK_Q == ksym) {
+            cont = 0;
+          }
         }
         break;
     }

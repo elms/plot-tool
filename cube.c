@@ -143,8 +143,8 @@ int main(int argc, char** argv) {
 
   perspective(xpnts, cube, ndim, npnts);
   for (size_t ii=0; ii<npnts; ii++) {
-    xpnts[ii].x += 100;
-    xpnts[ii].y += 100;
+    xpnts[ii].x += 200;
+    xpnts[ii].y += 200;
   }
 
   while (cont) {
@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
           break;
         }
       case ButtonPress:
-        bcnt++;
+      case KeyPress:
         proj1[3]  = cos(0.05*bcnt) * cos(0.1*bcnt);
         proj1[4]  = cos(0.05*bcnt) * sin(0.1*bcnt);
         proj1[5]  = sin(0.05*bcnt);
@@ -175,19 +175,22 @@ int main(int argc, char** argv) {
 
         perspective(xpnts, pnts, ndim, npnts);
         for (size_t ii=0; ii<npnts; ii++) {
-          xpnts[ii].x = 100 + 10*xpnts[ii].x;
-          xpnts[ii].y = 100 + 10*xpnts[ii].y;
+          xpnts[ii].x = 200 + xpnts[ii].x;
+          xpnts[ii].y = 200 + xpnts[ii].y;
         }
+
+        bcnt++;
 
         XClearWindow(disp, win);
         XDrawLines(disp, win, gc, xpnts, npnts, CoordModeOrigin);
 
         printf("button: %zu\n", bcnt);
-        break;
-      case KeyPress:
-        printf("keypress: %#x\n", ((XKeyEvent*)&ev)->keycode);
-        if (0x14 == ((XKeyEvent*)&ev)->keycode) {
-          cont = 0;
+
+        if (ev.type = KeyPress) {
+          printf("keypress: %#x\n", ev.xkey.keycode);
+          if (0x14 == ev.xkey.keycode) {
+            cont = 0;
+          }
         }
         break;
     }

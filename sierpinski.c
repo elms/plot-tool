@@ -127,8 +127,8 @@ int main(int argc, char** argv) {
         printf("button: %zu\n", bcnt);
 
         if (ev.type == KeyPress) {
-          printf("keypress: %#x\n", ((XKeyEvent*)&ev)->keycode);
-          if (0x14 == ((XKeyEvent*)&ev)->keycode) {
+          printf("keypress: %#x\n", ev.xkey.keycode);
+          if (0x14 == ev.xkey.keycode) {
             cont = 0;
           }
         }
