@@ -58,10 +58,11 @@ void plot() { //xpdata_t* data, size_t npnts) {
 
   XMapRaised(disp, win);
 
-  size_t npnts = 100000;
+#define NTEST 1000
+  size_t npnts = NTEST;
   size_t xnpnts = 0;
-  xpdata_t data[2*100000];
-  for (int ii=0; ii<2*100000; ii++) {
+  xpdata_t data[2*NTEST];
+  for (int ii=0; ii<2*NTEST; ii++) {
     data[ii] = rand()%10;
   }
   data[513] = 20;
@@ -71,7 +72,7 @@ void plot() { //xpdata_t* data, size_t npnts) {
      .width  = 200,
      .height = 200
       };
-  plotmax(xpnt, data, npnts, &geo, -1, &xnpnts);
+  plotmax(xpnt, data, npnts, &geo, -1, 0, &xnpnts);
 
 
   XEvent ev;
