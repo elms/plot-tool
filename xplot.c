@@ -58,16 +58,20 @@ void plot() { //xpdata_t* data, size_t npnts) {
 
   XMapRaised(disp, win);
 
-  size_t npnts = 5;
+  size_t npnts = 100000;
   size_t xnpnts = 0;
-  xpdata_t data[] = {0,0,1,1,2,1,3,2,4,0};
+  xpdata_t data[2*100000];
+  for (int ii=0; ii<2*100000; ii++) {
+    data[ii] = rand()%10;
+  }
+  data[513] = 20;
   XPoint* xpnt = calloc(npnts, sizeof(XPoint));
   xpgeo_t geo =
       {
      .width  = 200,
      .height = 200
       };
-  plotmax(xpnt, data, npnts, &geo, 30, &xnpnts);
+  plotmax(xpnt, data, npnts, &geo, -1, &xnpnts);
 
 
   XEvent ev;
