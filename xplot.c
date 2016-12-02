@@ -12,42 +12,23 @@ static xpdata_t* init(size_t* npnts, size_t* ndim) {
 
   xpdata_t* pnts = NULL;
 
-  xpdata_t cube[24 * 3] =
+  xpdata_t shape[8 * 3] =
       {
-        +1, +1, +1,
-        +1, +1, -1,
-        +1, +1, +1,
-        +1, -1, +1,
-        +1, +1, +1,
-        -1, +1, +1,
-
-        -1, +1, -1,
-        -1, +1, +1,
-        -1, +1, -1,
-        -1, -1, -1,
-        -1, +1, -1,
-        +1, +1, -1,
-
-        +1, -1, -1,
-        +1, -1, +1,
-        +1, -1, -1,
-        +1, +1, -1,
-        +1, -1, -1,
-        -1, -1, -1,
-
-        -1, -1, +1,
-        -1, -1, -1,
-        -1, -1, +1,
-        -1, +1, +1,
-        -1, -1, +1,
-        +1, -1, +1
+        1.,  0.,  0.,
+        -0.33333333,  0.94280904,  0.,
+        -0.33333333, -0.47140452,  0.81649658,
+        1.,  0.,  0.,
+        -0.33333333, -0.47140452, -0.81649658,
+        -0.33333333,  0.94280904,  0.,
+        -0.33333333, -0.47140452,  0.81649658,
+        -0.33333333, -0.47140452, -0.81649658
       };
 
-  *npnts = 24;
+  *npnts = 8;
   *ndim = 3;
 
   pnts = calloc(*npnts * *ndim, sizeof(xpdata_t));
-  memcpy(pnts, cube, *npnts * *ndim * sizeof(xpdata_t));
+  memcpy(pnts, shape, *npnts * *ndim * sizeof(xpdata_t));
 
   return pnts;
 }
@@ -98,15 +79,18 @@ int main(int argc, char** argv) {
   proj1[1] = 0;
   proj1[2] = 0;
 
-  proj1[3]  = cos(0.05) * cos(0.1);
-  proj1[4]  = cos(0.05) * sin(0.1);
-  proj1[5]  = sin(0.05);
-  proj1[6]  = -sin(0.1);
-  proj1[7]  = cos(0.1);
+  double rad1 = 0.1;
+  double rad2 = 0.06;
+
+  proj1[3]  = cos(rad2) * cos(rad1);
+  proj1[4]  = cos(rad2) * sin(rad1);
+  proj1[5]  = sin(rad2);
+  proj1[6]  = -sin(rad1);
+  proj1[7]  = cos(rad1);
   proj1[8]  = 0;
-  proj1[9]  = -sin(0.05) * cos(0.1);
-  proj1[10] = -sin(0.05) * sin(0.1);
-  proj1[11] = cos(0.05);
+  proj1[9]  = -sin(rad2) * cos(rad1);
+  proj1[10] = -sin(rad2) * sin(rad1);
+  proj1[11] = cos(rad2);
 
   xpdata_t offset = 30;
   size_t xo = 200;
@@ -133,6 +117,8 @@ int main(int argc, char** argv) {
 
         projectToX(pnts, pnts, ndim, npnts, proj1);
         perspective(xpnts, pnts, ndim, npnts, offset, xo, yo);
+
+        XClearWindow(disp, win);
         XDrawLines(disp, win, gc, xpnts, npnts, CoordModeOrigin);
 
         if (ev.type == KeyPress) {
