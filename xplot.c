@@ -6,36 +6,35 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 
+#include "xplot.h"
 #include "projective.h"
+#include "plotting.h"
 
-static xpdata_t* init(size_t* npnts, size_t* ndim) {
+#if 0
+int readdata(const char* fname, xpdata_t* data, size_t* pdim, size_t* num) {
+  size_t cnt = 0;
+  size_t dim = 0;
+  struct stat sb;
 
-  xpdata_t* pnts = NULL;
+  int df = open(fname, O_RDONLY);
 
-  xpdata_t shape[8 * 3] =
-      {
-        1.,  0.,  0.,
-        -0.33333333,  0.94280904,  0.,
-        -0.33333333, -0.47140452,  0.81649658,
-        1.,  0.,  0.,
-        -0.33333333, -0.47140452, -0.81649658,
-        -0.33333333,  0.94280904,  0.,
-        -0.33333333, -0.47140452,  0.81649658,
-        -0.33333333, -0.47140452, -0.81649658
-      };
+  if (fstat(fd, &sb) == -1) {
+    //handle_error("fstat");
+  }
 
-  *npnts = 8;
-  *ndim = 3;
+  data = calloc(1, bufsb.st_size);
 
-  pnts = calloc(*npnts * *ndim, sizeof(xpdata_t));
-  memcpy(pnts, shape, *npnts * *ndim * sizeof(xpdata_t));
+  if (-1 == read(fd, buf, sb.st_size)) {
+    //
+  }
 
-  return pnts;
+  return 0;
 }
+#endif
 
-int main(int argc, char** argv) {
 
-  Display* disp = XOpenDisplay(NULL);
+void plot() { //xpdata_t* data, size_t npnts) {
+    Display* disp = XOpenDisplay(NULL);
   if (NULL == disp) {
     fprintf(stderr, "unable to open display\n");
     exit(1);
@@ -43,7 +42,7 @@ int main(int argc, char** argv) {
 
   int screen = DefaultScreen(disp);
 
-  int width=800;
+  int width = 800;
   int height = 400;
 
   unsigned long black = BlackPixel(disp, screen);
@@ -57,70 +56,36 @@ int main(int argc, char** argv) {
 
   GC gc = XCreateGC(disp, win, 0, NULL);
 
-  XClearWindow(disp, win);
   XMapRaised(disp, win);
+
+  size_t npnts = 5;
+  size_t xnpnts = 0;
+  xpdata_t data[] = {0,0,1,1,2,1,3,2,4,0};
+  XPoint* xpnt = calloc(npnts, sizeof(XPoint));
+  xpgeo_t geo =
+      {
+     .width  = 200,
+     .height = 200
+      };
+  plotmax(xpnt, data, npnts, &geo, 30, &xnpnts);
+
 
   XEvent ev;
   int cont = 1;
-
-  size_t npnts = 0;
-  size_t ndim = 0;
-
-  xpdata_t* pnts = NULL;
-
-  pnts = init(&npnts, &ndim);
-
-  XPoint* xpnts = calloc(npnts, sizeof(pnts));
-
-  // offset vector + projecting matrix
-  xpdata_t* proj1 = calloc(ndim * (1 + ndim), sizeof(xpdata_t));
-
-  proj1[0] = 0;
-  proj1[1] = 0;
-  proj1[2] = 0;
-
-  double rad1 = 0.1;
-  double rad2 = 0.06;
-
-  proj1[3]  = cos(rad2) * cos(rad1);
-  proj1[4]  = cos(rad2) * sin(rad1);
-  proj1[5]  = sin(rad2);
-  proj1[6]  = -sin(rad1);
-  proj1[7]  = cos(rad1);
-  proj1[8]  = 0;
-  proj1[9]  = -sin(rad2) * cos(rad1);
-  proj1[10] = -sin(rad2) * sin(rad1);
-  proj1[11] = cos(rad2);
-
-  xpdata_t offset = 30;
-  size_t xo = 200;
-  size_t yo = 200;
-
-  perspective(xpnts, pnts, ndim, npnts, offset, xo, yo);
-  //projectToX(pnts, pnts, ndim, npnts, NULL);
-
   while (cont) {
     XNextEvent(disp, &ev);
     switch (ev.type) {
       case Expose:
         {
-            unsigned long color = 0xff;
+          unsigned long color = 0x00ff00;
           XSetForeground(disp, gc, color);
-          XDrawLine(disp, win, gc, 0, 0, 100, 200);
 
-          XDrawLines(disp, win, gc, xpnts, npnts, CoordModeOrigin);
+          XDrawLines(disp, win, gc, xpnt, xnpnts, CoordModeOrigin);
 
           break;
         }
       case ButtonPress:
       case KeyPress:
-
-        projectToX(pnts, pnts, ndim, npnts, proj1);
-        perspective(xpnts, pnts, ndim, npnts, offset, xo, yo);
-
-        XClearWindow(disp, win);
-        XDrawLines(disp, win, gc, xpnts, npnts, CoordModeOrigin);
-
         if (ev.type == KeyPress) {
           KeySym ksym = XLookupKeysym(&ev.xkey, 0);
           if (XK_q == ksym || XK_Q == ksym) {
@@ -133,4 +98,14 @@ int main(int argc, char** argv) {
 
   XDestroyWindow(disp, win);
   XCloseDisplay(disp);
+}
+
+int main(int argc, char** argv) {
+
+
+  //  readdata();
+
+  plot();
+
+
 }

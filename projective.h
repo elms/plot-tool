@@ -1,8 +1,8 @@
 #include <X11/Xlib.h>
 
-#define TargetDim 2
+#include "xplot.h"
 
-typedef float xpdata_t;
+#define TargetDim 2
 
 int applyAffine (xpdata_t* res,
                  xpdata_t* pnt, const size_t nDim, xpdata_t* tAffine);

@@ -13,7 +13,7 @@ cube: cube.o projective.o
 sierpinski: sierpinski.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-xplot: xplot.o projective.o
+xplot: xplot.o projective.o plotting.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 cantor: cantor.o projective.o
