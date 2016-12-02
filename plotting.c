@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <X11/Xlib.h>
 #include <math.h>
 
@@ -41,8 +42,11 @@ int plotmax(XPoint* xpnt, xpdata_t* data, size_t npnts,
 
   xpdata_t* transd = calloc(npnts * 2, sizeof(xpdata_t));
 
+  printf("%s: %g\n", __func__, pnt_per_pixel);
+
   // decimate
   if (npnts < geo->width) {
+    printf("%s: %zu\n", __func__, npnts);
     // plot all points, data scaled
     *xnpnts = npnts;
     for (int ii=0; ii<npnts; ii++) {
@@ -51,17 +55,21 @@ int plotmax(XPoint* xpnt, xpdata_t* data, size_t npnts,
     }
   } else {
     *xnpnts = geo->width;
-    size_t step = round(pnt_per_pixel);
+    xpdata_t step = pnt_per_pixel;
+    xpdata_t off = 0;
     xpdata_t sec_max;
     xpdata_t sec_min;
     xpdata_t sec_avg;
 
+    printf("%s: s %zu %g %g\n", __func__, *xnpnts, step, off);
+    fflush(stdout);
+
     for (int ii=0; ii<geo->width; ii++) {
       transd[2*ii + 0] = ii;
-      sec_extremum(data + 2*ii*step, step,
+      sec_extremum(data + 2*(size_t)round(off), round(off+step) - round(off),
                    &sec_min, &sec_max, &sec_avg);
 
-      xpdata_t yval = data[2*ii*step + 1];
+      xpdata_t yval = data[2*(size_t)round(off) + 1];
       switch (dec_type) {
         case XP_MAX:
           yval = sec_max;
@@ -73,6 +81,8 @@ int plotmax(XPoint* xpnt, xpdata_t* data, size_t npnts,
           yval = sec_avg;
           break;
       }
+
+      off += step;
 
       transd[2*ii + 1] = yval;
     }

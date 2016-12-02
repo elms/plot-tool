@@ -51,7 +51,7 @@ void plot() { //xpdata_t* data, size_t npnts) {
   Window win = XCreateSimpleWindow(disp, RootWindow(disp, screen),
 				   0, 0, width, height, 0, white, black);
 
-  XSelectInput(disp, win, ExposureMask | KeyPressMask | ButtonPressMask);
+  XSelectInput(disp, win, StructureNotifyMask | ExposureMask | KeyPressMask | ButtonPressMask);
   XMapWindow(disp, win);
 
   GC gc = XCreateGC(disp, win, 0, NULL);
@@ -69,8 +69,8 @@ void plot() { //xpdata_t* data, size_t npnts) {
   XPoint* xpnt = calloc(npnts, sizeof(XPoint));
   xpgeo_t geo =
       {
-     .width  = 200,
-     .height = 200
+     .width  = 800,
+     .height = 400
       };
   plotmax(xpnt, data, npnts, &geo, -1, 0, &xnpnts);
 
@@ -80,11 +80,22 @@ void plot() { //xpdata_t* data, size_t npnts) {
   while (cont) {
     XNextEvent(disp, &ev);
     switch (ev.type) {
+      case ConfigureNotify:
+        printf("config\n");
+
+        geo.width  = ev.xconfigure.width;
+        geo.height = ev.xconfigure.height;
+
+        plotmax(xpnt, data, npnts, &geo, -1, 0, &xnpnts);
+
+        break;
       case Expose:
         {
           unsigned long color = 0x00ff00;
-          XSetForeground(disp, gc, color);
 
+          printf("expose\n");
+
+          XSetForeground(disp, gc, color);
           XDrawLines(disp, win, gc, xpnt, xnpnts, CoordModeOrigin);
 
           break;
