@@ -49,7 +49,7 @@ int plotmax(XPoint* xpnt, xpdata_t* data, size_t npnts,
     printf("%s: %zu\n", __func__, npnts);
     // plot all points, data scaled
     *xnpnts = npnts;
-    for (int ii=0; ii<npnts; ii++) {
+    for (size_t ii=0; ii<npnts; ii++) {
       transd[2*ii + 0] = ii/pnt_per_pixel;
       transd[2*ii + 1] = data[2*ii + 1];
     }
@@ -93,8 +93,7 @@ int plotmax(XPoint* xpnt, xpdata_t* data, size_t npnts,
     xpdata_t ymax;
     xpdata_t ymin;
     sec_extremum(transd, *xnpnts, &ymin, &ymax, NULL);
-
-    ysc = -geo->height / (ymax - ymin);
+    ysc = -1 * ((xpdata_t)geo->height) / (ymax - ymin);
     yoff = ysc * -ymin + geo->height;
   }
 

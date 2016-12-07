@@ -62,8 +62,10 @@ void plot() { //xpdata_t* data, size_t npnts) {
   size_t npnts = NTEST;
   size_t xnpnts = 0;
   xpdata_t data[2*NTEST];
-  for (int ii=0; ii<2*NTEST; ii++) {
-    data[ii] = rand()%10;
+  for (int ii=0; ii<NTEST; ii++) {
+    data[2*ii] = 0;
+    data[2*ii + 1] = rand()%10;
+    printf("%g\t", data[2*ii+1]);
   }
   data[513] = 20;
   XPoint* xpnt = calloc(npnts, sizeof(XPoint));

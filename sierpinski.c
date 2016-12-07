@@ -39,10 +39,13 @@ int main(int argc, char** argv) {
   int cont = 1;
   static size_t bcnt = 0;
 
-  xpdata_t x = 1;
-  xpdata_t y = 1;
+  xpdata_t x = 0;
+  xpdata_t y = 0;
   int rind = 0;
-  xpdata_t diffs[3][2] = { {0, 1}, {0.5, 0}, {1, 1} };
+  xpdata_t diffs[3][2] = { {0, 0.866}, {0.5, 0}, {1.0, 0.866} };
+  x = diffs[3][0];
+  y = diffs[3][1];
+
   xpdata_t sc = 0.5;
   int ssc = 500;
 
