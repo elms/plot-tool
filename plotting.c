@@ -95,12 +95,16 @@ int plotmax(XPoint* xpnt, xpdata_t* data, size_t npnts,
     sec_extremum(transd, *xnpnts, &ymin, &ymax, NULL);
     ysc = -1 * ((xpdata_t)geo->height) / (ymax - ymin);
     yoff = ysc * -ymin + geo->height;
+
+   printf("%s: mm %g %g %g %g %zu %g\n", __func__, ymin, ymax, ysc, yoff, geo->height, 1.0/(ymax-ymin));
   }
 
   // scale, offset, and round to XPoints
   for (size_t ii=0; ii<*xnpnts; ii++) {
     xpnt[ii].x = round(transd[2*ii + 0]);
     xpnt[ii].y = round(ysc * transd[2*ii + 1] + yoff);
+    
+    printf("%s: %zu %u %u %g %g->%g\n", __func__, ii, xpnt[ii].x, xpnt[ii].y, transd[2*ii], transd[2*ii +1], ysc * transd[2*ii + 1] + yoff);
   }
 
   free(transd);
