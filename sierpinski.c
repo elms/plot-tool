@@ -63,17 +63,27 @@ int main(int argc, char** argv) {
       case ButtonPress:
       case KeyPress:
         bcnt++;
+	{
+	  int xo = rand()%ssc;
+	  int yo = rand()%ssc;
+	  int ss = rand()%ssc;
 
-        for (int ii=0; ii<1000; ii++) {
-          rind = rand()%3;
+	  unsigned long colors[3] = { 0xaa3300, 0x339900, 0xaa5511 };
+          XSetForeground(disp, gc, colors[rand()%3]);
 
-          x = sc * (x + diffs[rind][0]);
-          y = sc * (y + diffs[rind][1]);
+	  double rot = (rand()%360) * 2 * M_PI/360;
 
-          //printf("xy: %f %f\n", x, y);
+	  for (int ii=0; ii<5000; ii++) {
+	    rind = rand()%3;
 
-          XDrawPoint(disp, win, gc, round(ssc*x), round(ssc*y));
-        }
+	    x = sc * (x + diffs[rind][0]);
+	    y = sc * (y + diffs[rind][1]);
+
+	    XDrawPoint(disp, win, gc,
+		       round(ss*(cos(rot) * x - sin(rot) * y)) + xo,
+		       round(ss*(sin(rot) * x + cos(rot) * y)) + yo);
+	  }
+	}
 
         printf("button: %zu\n", bcnt);
 
