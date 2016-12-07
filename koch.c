@@ -44,13 +44,14 @@ int main(int argc, char** argv) {
   int rind = 0;
   xpdata_t diffs[4][6] =
     {
-      {0, 0, 1, 0, 0, 1},
-      {0.3333, 0, 0.5, -0.866, 0.866, 0.5},
-      {0.5, 0.3333*0.866, 0.5, 0.866, -0.866, 0.5},
-      {0.6666, 0, 1, 0 , 0, 1} };
+      {1.0/3.0, 1.0/3.0, 0, 0, 0, 0},
+      {1.0/3.0, 1.0/3.0, 1.0/3.0, 0, M_PI/3, M_PI/3},
+      {1.0/3.0, 1.0/3.0, 0.5, 0.866/3.0, -M_PI/3, -M_PI/3},
+      {1.0/3.0, 1.0/3.0, 2.0/3.0, 0, 0, 0}
+    };
   x = diffs[0][0];
   y = diffs[0][1];
-  xpdata_t sc = 0.3333;
+
   int ssc = 500;
 
   while (cont) {
@@ -68,20 +69,21 @@ int main(int argc, char** argv) {
       case KeyPress:
         bcnt++;
 	{
-	  int xo = 0;//rand()%ssc;
-	  int yo = 100;//rand()%ssc;
-	  int ss = ssc;//rand()%ssc;
+	  int xo = rand()%ssc;
+	  int yo = rand()%ssc;
+	  int ss = rand()%ssc;
 
 	  unsigned long colors[3] = { 0xaa3300, 0x339900, 0xaa5511 };
-          //XSetForeground(disp, gc, colors[rand()%3]);
+          XSetForeground(disp, gc, colors[rand()%3]);
 
-	  double rot = 0;//(rand()%360) * 2 * M_PI/360;
+	  double rot = (rand()%360) * 2 * M_PI/360;
 
-	  for (int ii=0; ii<1000; ii++) {
+	  for (int ii=0; ii<10000; ii++) {
 	    rind = rand()%4;
 
-	    xpdata_t tmp = sc*(diffs[rind][2]*x + diffs[rind][3]*y) + diffs[rind][0];
-	    y            = sc*(diffs[rind][4]*x + diffs[rind][5]*y) + diffs[rind][1];
+	    xpdata_t* aff = diffs[rind];
+	    xpdata_t tmp = aff[0]*cos(aff[4]) * x + aff[1]*-sin(aff[5])*y + aff[2];
+	    y            = aff[0]*sin(aff[4]) * x + aff[1]* cos(aff[5])*y + aff[3];
 	    x = tmp;
 
 	    XDrawPoint(disp, win, gc,
