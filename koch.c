@@ -52,7 +52,8 @@ int main(int argc, char** argv) {
   x = diffs[0][0];
   y = diffs[0][1];
 
-  int ssc = 500;
+  int ssc  = 100;
+  int soff = 500;
 
   while (cont) {
     XNextEvent(disp, &ev);
@@ -69,11 +70,11 @@ int main(int argc, char** argv) {
       case KeyPress:
         bcnt++;
 	{
-	  int xo = rand()%ssc;
-	  int yo = rand()%ssc;
+	  int xo = rand()%soff;
+	  int yo = rand()%soff;
 	  int ss = rand()%ssc;
 
-	  unsigned long colors[3] = { 0xaa3300, 0x339900, 0xaa5511 };
+	  unsigned long colors[3] = { 0xffffff, 0xaa0000, 0x009933 };
           XSetForeground(disp, gc, colors[rand()%3]);
 
 	  double rot = (rand()%360) * 2 * M_PI/360;
@@ -88,8 +89,8 @@ int main(int argc, char** argv) {
 
 	    double rot2 = 0;
 	    for (int ii=0; ii<6; ii++) {
-	      xpdata_t x2 = cos(rot2) * (x-0.5) - sin(rot2) * y;
-	      xpdata_t y2 = sin(rot2) * (x-0.5) + cos(rot2) * y + sqrt(0.75);
+	      xpdata_t x2 = cos(rot2) * (x-0.5) - sin(rot2) * (y + sqrt(0.75));
+	      xpdata_t y2 = sin(rot2) * (x-0.5) + cos(rot2) * (y + sqrt(0.75));
 	      rot2 += M_PI/3.0;
 	      XDrawPoint(disp, win, gc,
 			 round(ss*(cos(rot) * x2 - sin(rot) * y2)) + xo,
