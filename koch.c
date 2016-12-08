@@ -44,10 +44,10 @@ int main(int argc, char** argv) {
   int rind = 0;
   xpdata_t diffs[4][6] =
     {
-      {1.0/3.0, 1.0/3.0, 0, 0, 0, 0},
-      {1.0/3.0, 1.0/3.0, 1.0/3.0, 0, M_PI/3, M_PI/3},
-      {1.0/3.0, 1.0/3.0, 0.5, 0.866/3.0, -M_PI/3, -M_PI/3},
-      {1.0/3.0, 1.0/3.0, 2.0/3.0, 0, 0, 0}
+      {1.0/3.0, 1.0/3.0, 0-0.5, 0, 0, 0},
+      {1.0/3.0, 1.0/3.0, 1.0/3.0-0.5, 0, M_PI/3, M_PI/3},
+      {1.0/3.0, 1.0/3.0, 0.5-0.5, 0.866/3.0, -M_PI/3, -M_PI/3},
+      {1.0/3.0, 1.0/3.0, 2.0/3.0-0.5, 0, 0, 0}
     };
   x = diffs[0][0];
   y = diffs[0][1];
@@ -86,9 +86,15 @@ int main(int argc, char** argv) {
 	    y            = aff[0]*sin(aff[4]) * x + aff[1]* cos(aff[5])*y + aff[3];
 	    x = tmp;
 
-	    XDrawPoint(disp, win, gc,
-		       round(ss*(cos(rot) * x - sin(rot) * y)) + xo,
-		       round(ss*(sin(rot) * x + cos(rot) * y)) + yo);
+	    double rot2 = 0;
+	    for (int ii=0; ii<6; ii++) {
+	      xpdata_t x2 = cos(rot2) * x - sin(rot2) * y;
+	      xpdata_t y2 = sin(rot2) * x + cos(rot2) * y;// + sqrt(0.75);
+	      rot2 += M_PI/3.0;
+	      XDrawPoint(disp, win, gc,
+			 round(ss*(cos(rot) * x2 - sin(rot) * y2)) + xo,
+			 round(ss*(sin(rot) * x2 + cos(rot) * y2)) + yo);
+	    }
 	  }
 	}
 
