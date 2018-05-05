@@ -3,9 +3,12 @@ TARGETS:=cube sierpinski xplot cantor koch fern
 CFLAGS += -std=gnu99 -O0 -g -I/opt/X11/include
 LDFLAGS += -lX11 -lm -L/opt/X11/lib
 
-.PHONY: all
+.PHONY: all clean
 
 all: $(TARGETS)
+
+clean:
+	$(RM) $(TARGETS) *.o
 
 cube: cube.o projective.o
 	$(CC) -o $@ $^ $(LDFLAGS)
