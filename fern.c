@@ -70,14 +70,14 @@ int main(int argc, char** argv) {
       case KeyPress:
         bcnt++;
 	{
-	  int xo = width/2;//rand()%soff;
-	  int yo = height;//rand()%soff;
-	  int ss = 50;//rand()%ssc;
+	  int xo = rand()%soff;
+	  int yo = rand()%soff;
+	  int ss = rand()%ssc;
 
 	  unsigned long colors[3] = { 0xaa3300, 0x339900, 0xaa5511 };
           XSetForeground(disp, gc, colors[rand()%3]);
 
-	  double rot = M_PI;//(rand()%360) * 2 * M_PI/360;
+	  double rot = (rand()%360) * 2 * M_PI/360;
 
 	  for (int ii=0; ii<10000; ii++) {
 	    rind = rand()%100;
