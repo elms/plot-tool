@@ -1,4 +1,4 @@
-TARGETS:=cube sierpinski xplot cantor koch fern
+TARGETS:=cube sierpinski xplot cantor koch fern conway
 
 CFLAGS += -std=gnu99 -O0 -g -I/opt/X11/include
 LDFLAGS += -lX11 -lm -L/opt/X11/lib
@@ -17,6 +17,9 @@ koch: koch.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 fern: fern.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+conway: conway.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 sierpinski: sierpinski.o
