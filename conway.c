@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
   }
   int screen = DefaultScreen(disp);
 
-  int width=600;
-  int height = 600;
+  int width=1200;
+  int height = 1200;
 
   unsigned long black = BlackPixel(disp, screen);
   unsigned long white = WhitePixel(disp, screen);
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
   int rind = 0;
   xpdata_t diffs[5][6] =
     {
-#if 1
+#if 0
       {+0.2, -0.4, -0.4, -0.2, 0.8, 0.4},
       {-0.4, -0.2, -0.2, +0.4, 0.4, 0.2},
       {-0.4, -0.2, -0.2, +0.4, 0.4, 1.2},
@@ -56,7 +56,16 @@ int main(int argc, char** argv) {
       {-0.4, +0.2, -0.2, -0.4, 0.4, 1.2},
 #endif
       {-0.4, +0.2, -0.2, -0.4, 0.4, 1.2},
+#elif 1
+      // Conway aorta https://arxiv.org/pdf/1001.2203.pdf
+      {-0.4, -0.2, -0.2, +0.4, -0.4, -0.2},
+      {+0.4, -0.2, +0.2, +0.4, +0.0, +0.0},
+      {-0.4, +0.2, -0.2, -0.4, -0.2, +0.4},
+
+      {+0.4, -0.2, +0.2, +0.4, +0.0, +0.0},
+      {-0.4, +0.2, -0.2, -0.4, -0.2, +0.4},
 #else
+      // Sierpinkski examples
       {+0.5, -0.0, -0.0, +0.5, 0.0, 0.0},
       {+0.5, -0.0, +0.0, +0.5, 0.0, 0.5},
       {+0.5, -0.0, +0.0, +0.5, 0.5, 0.0},
@@ -91,9 +100,9 @@ int main(int argc, char** argv) {
 	xpdata_t y1;
 	xpdata_t x2;
 	xpdata_t y2;
-	int xo = 100;//width/2;//rand()%soff;
-	int yo = 100;//height;//rand()%soff;
-	int ss = 200;//rand()%ssc;
+	int xo = width/2;//rand()%soff;
+	int yo = height/2;//rand()%soff;
+	int ss = 20;//rand()%ssc;
 	
 	for (size_t ii=0; ii< 5; ii++) {
 	  xpdata_t* aff = diffs[ii];
@@ -122,10 +131,12 @@ int main(int argc, char** argv) {
         bcnt++;
 	{
 	  int xo = width/2;//rand()%soff;
-	  int yo = height;//rand()%soff;
-	  int ss = 200;//rand()%ssc;
+	  int yo = height/2;//rand()%soff;
+	  int ss = 1200;//rand()%ssc;
+	  //XClearWindow(disp, win);
 
-	  unsigned long colors[3] = { 0xaa3300, 0x339900, 0xaa5511 };
+
+	  unsigned long colors[3] = { 0xaa0000, 0x00aaaa, 0x0000aa };
           XSetForeground(disp, gc, colors[rand()%3]);
 
 	  double rot = M_PI;//(rand()%360) * 2 * M_PI/360;
